@@ -1,11 +1,16 @@
-FROM opendronemap/opendronemap:latest
-MAINTAINER Piero Toffanin <pt@masseranolabs.com>
+FROM nwdrone/aarch64-odm:latest
+MAINTAINER Tyler Baker <forcedinductionz@gmail.com>
 
 EXPOSE 3000
 
 USER root
-RUN curl --silent --location https://deb.nodesource.com/setup_6.x | sudo bash -
-RUN apt-get install -y nodejs python-gdal libboost-dev libboost-program-options-dev
+RUN \
+  curl https://nodejs.org/dist/v6.9.5/node-v6.9.5-linux-arm64.tar.xz > node-v6.9.5-linux-arm64.tar.xz && \
+  tar -C . -xaf node-v6.9.5-linux-arm64.tar.xz && \
+  rm node-v6.9.5-linux-arm64.tar.xz && \
+  cd node-v6.9.5-linux-arm64 && \
+  cp -R * /usr/local/
+RUN apt-get install -y python-gdal libboost-dev libboost-program-options-dev
 RUN npm install -g nodemon
 
 # Build LASzip and PotreeConverter
@@ -36,4 +41,4 @@ RUN npm install
 # Fix old version of gdal2tiles.py
 RUN (cd / && patch -p0) <patches/gdal2tiles.patch
 
-ENTRYPOINT ["/usr/bin/nodejs", "/var/www/index.js"]
+ENTRYPOINT ["node", "/var/www/index.js"]
